@@ -8,7 +8,7 @@ from sty import fg, bg, ef, rs
 def decToBin(value):
     binary = ''
 
-    explaination = ' ' * 3 + '-' * 14 + fg.li_green + '\n - Decimal to Binary verbose:\n' + fg.rs
+    verbose = fg.li_yellow + ' -' + fg.li_green + ' Decimal to Binary verbose:\n' + fg.rs
 
     if value == 0:
         return '0'
@@ -27,7 +27,7 @@ def decToBin(value):
     result_2 = value - result_1
     binary += '1'
 
-    explaination += '2^%s = %s < %s\t| r = %s |\tinterim result: %s\n' % (exponent, result_1, value, result_2, binary)
+    verbose += '2^%s = %s < %s\t| r = %s |\tinterim result: %s\n' % (exponent, result_1, value, result_2, binary)
 
     # 3. is the next lower expenent in the result of step 2. then write a 1 else a 0
     # 4. repeat like in step 3.
@@ -37,18 +37,44 @@ def decToBin(value):
             binary += '0'
             i += 1
 
-            explaination += '2^%s = %s > %s\t| r = - |\tinterim result: %s\n' % (new_exponent, 2 ** new_exponent, result_2, binary)
+            verbose += '2^%s = %s > %s\t| r = - |\tinterim result: %s\n' % (new_exponent, 2 ** new_exponent, result_2, binary)
         else:
             binary += '1'
             
-            explaination += '2^%s = %s < %s\t| r = %s |\tinterim result: %s\n' % (new_exponent, 2 ** new_exponent, result_2, result_2 - 2 ** new_exponent, binary)
+            verbose += '2^%s = %s < %s\t| r = %s |\tinterim result: %s\n' % (new_exponent, 2 ** new_exponent, result_2, result_2 - 2 ** new_exponent, binary)
             
             result_2 = result_2 - 2 ** new_exponent
             i += 1
 
-    explaination += ' ' * 3 + '-' * 14 + '\n'
+    verbose += ' ' * 3 + fg.li_cyan + '-' * 35 + fg.rs + '\n'
 
-    return binary, explaination
+    return binary, verbose
+
+"""Convert binary numbers into decimal numbers
+"""
+def binToDec(value):
+    decimal = 0
+
+    verbose = fg.li_yellow + '\n -' + fg.li_green + ' Binary to Decimal verbose:\n' + fg.rs
+
+    # Find all 1's and there position and add those like 2⁰ + 2¹ + 2² + 2³ + ...
+    i = 0
+    for c in reversed(value):
+        if c == '1':
+            decimal += 2 ** i
+
+            if i + 1 == len(value):
+                verbose += '2^%d = %d\n' % (i, decimal)
+            else:
+                verbose += '2^%d + ' % i
+
+            i += 1
+        else:
+            i += 1
+
+    verbose += ' ' * 3 + fg.li_cyan + '-' * 35 + fg.rs + '\n'
+
+    return decimal, verbose
 
 
 """The main menu of the app
@@ -61,13 +87,7 @@ def menu():
 
     # Print the options
     print(fg.da_cyan + '=' * 33 + fg.rs)
-    print(
-        '''Which number type you want enter?
-    1. Decimal (d)
-    2. Binary (b)
-    3. Octal (o)
-    4. Hexadecimal (h)
-    5. quit (q)''')
+    print('Which number type you want enter?\n' + fg.li_yellow + '\t1.' + fg.rs + ' Decimal (d)\n' + fg.li_yellow + '\t2.' + fg.rs + ' Binary (b)\n' + fg.li_yellow + '\t3.' + fg.rs + ' Octal (o)\n' + fg.li_yellow + '\t4.' + fg.rs + ' Hexadecimal (h)\n' + fg.li_yellow + '\t5.' + fg.rs + ' quit (q)')
 
     # Get user input
     answer = str(get_input())
@@ -80,9 +100,18 @@ def menu():
         decToBin_result = decToBin(value)
 
         binary = decToBin_result[0]
-        bin_explaination = decToBin_result[1]
+        bin_verbose = decToBin_result[1]
 
-        print('%s\n - Binary result: %s%s%s\n%s' % (fg.li_green, fg.li_red, binary, fg.rs, bin_explaination))
+        print('%s\n - %sBinary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, binary, fg.rs, bin_verbose))
+        finish()
+    elif answer.lower() == 'binary' or answer.lower() == 'b':
+        print('\nEnter a binary number')
+        value = str(get_input())
+        binToDec_result = binToDec(value)
+        decimal = binToDec_result[0]
+        dec_verbose = binToDec_result[1]
+
+        print('%s\n - %sDecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, decimal, fg.rs, dec_verbose))
         finish()
     elif answer.lower() == 'quit' or answer.lower() == 'q':
         exit_numcalc()
