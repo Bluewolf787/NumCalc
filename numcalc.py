@@ -183,7 +183,7 @@ def menu():
         decToOct_result = decToOct(value)
         oct_num = decToOct_result[0]
         oct_verbose = decToOct_result[1]
-        print('%s\n - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
+        print('%s - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
 
 
         # Decimal into Hexadecimal
