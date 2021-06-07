@@ -98,6 +98,33 @@ def decToHex(value):
 
     return hex_num, verbose
 
+def decToOct(value):
+    oct_num  = ''
+    verbose = fg.li_yellow + ' -' + fg.li_green + ' Decimal to Octal verbose:\n' + fg.rs
+
+    exponent = 1
+    while 8 ** exponent < value:
+        exponent += 1
+
+    exponent -= 1
+
+    integer = 0
+    for i in range(exponent + 1):
+        verbose_helper = value
+
+        integer = int(value / 8 ** exponent)
+        value %= 8 ** exponent
+
+        oct_num += str(integer)
+
+        verbose += '8^{0} = {1}\t|\t{2} / {1} = {3}\t|\tr = {4}\t|\tinterim result: {5}\n'.format(exponent, 8 ** exponent, verbose_helper, integer, value, oct_num)
+
+        exponent -= 1
+
+    verbose += '\n' + ' ' * 3 + fg.li_cyan + '-' * 35 + fg.rs + '\n'
+
+    return oct_num, verbose
+
 """Convert binary numbers into decimal numbers
 """
 def binToDec(value):
@@ -146,11 +173,20 @@ def menu():
         print('\nEnter a decimal number')
         value = int(get_input())
 
+        # Decimal into Binary
         decToBin_result = decToBin(value)
         bin_num = decToBin_result[0]
         bin_verbose = decToBin_result[1]
         print('%s\n - %sBinary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, bin_num, fg.rs, bin_verbose))
 
+        # Decimal into Octal
+        decToOct_result = decToOct(value)
+        oct_num = decToOct_result[0]
+        oct_verbose = decToOct_result[1]
+        print('%s\n - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
+
+
+        # Decimal into Hexadecimal
         decToHex_result = decToHex(value)
         hex_num = decToHex_result[0]
         hex_vervose = decToHex_result[1]
