@@ -6,7 +6,7 @@ from sty import fg, bg, ef, rs
 """Convert a decimal number into a binary number
 """
 def decToBin(value):
-    bin_num = ''
+    bin_num = '0b'
 
     verbose = fg.li_yellow + ' -' + fg.li_green + ' Decimal to Binary verbose:\n' + fg.rs
 
@@ -53,7 +53,7 @@ def decToBin(value):
 """Convert decimal into hexadecimal numbers
 """
 def decToHex(value):
-    hex_num = ''
+    hex_num = '0x'
 
     verbose = fg.li_yellow + ' -' + fg.li_green + ' Decimal to Hexadecimal verbose:\n' + fg.rs
 
@@ -98,8 +98,10 @@ def decToHex(value):
 
     return hex_num, verbose
 
+"""Convert decimal numbers into octal numbers
+"""
 def decToOct(value):
-    oct_num  = ''
+    oct_num  = '0o'
     verbose = fg.li_yellow + ' -' + fg.li_green + ' Decimal to Octal verbose:\n' + fg.rs
 
     exponent = 1
@@ -151,6 +153,36 @@ def binToDec(value):
 
     return dec_num, verbose
 
+"""Convert binary numbers into octal numbers
+"""
+def binToOct(value):
+    oct_num = '0o'
+    bin_split = []
+    verbose = fg.li_yellow + ' -' + fg.li_green + ' Binary to Octal verbose:\n' + fg.rs + 'Binary\tOctal\tinterim result\n'
+
+    oct_table = {'000': '0', '001': '1', '010': '2', '011': '3', '100': '4', '101': '5', '110': '6', '111': '7'}
+
+    # Split the binary number into blocks with 3 digits
+    while value != '':
+        bin_split.append(value[-3:])
+        value = value[:-3]
+
+    for i in reversed(bin_split):
+        # Fill up those blocks without 3 digits with 0's
+        current_block = i.rjust(3, '0')
+
+        # Search the Octal number to all blocks of 3 digits
+        oct_num += oct_table[current_block]
+
+        verbose += '{0}\t{1}\t{2}\n'.format(current_block, oct_table[current_block], oct_num)
+
+    verbose += '\n' + ' ' * 3 + fg.li_cyan + '-' * 35 + fg.rs + '\n'
+
+    return oct_num, verbose
+
+def binToHex(value):
+    pass
+
 
 """The main menu of the app
 """
@@ -201,6 +233,11 @@ def menu():
         dec_num = binToDec_result[0]
         dec_verbose = binToDec_result[1]
         print('%s\n - %sDecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, dec_num, fg.rs, dec_verbose))
+
+        binToOct_result = binToOct(value)
+        oct_num = binToOct_result[0]
+        oct_verbose = binToOct_result[1]
+        print('%s - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
 
         finish()
     elif answer.lower() == 'quit' or answer.lower() == 'q':
