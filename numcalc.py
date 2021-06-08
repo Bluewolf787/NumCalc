@@ -131,10 +131,10 @@ def decToOct(value):
 """
 def binToDec(value):
     dec_num = 0
-
     verbose = fg.li_yellow + ' -' + fg.li_green + ' Binary to Decimal verbose:\n' + fg.rs
 
     # Find all 1's and there position and add those like 2⁰ + 2¹ + 2² + 2³ + ...
+    value = value.strip('0')
     i = 0
     for c in reversed(value):
         if c == '1':
@@ -163,6 +163,7 @@ def binToOct(value):
     oct_table = {'000': '0', '001': '1', '010': '2', '011': '3', '100': '4', '101': '5', '110': '6', '111': '7'}
 
     # Split the binary number into blocks with 3 digits
+    value = value.strip('0')
     while value != '':
         bin_split.append(value[-3:])
         value = value[:-3]
@@ -171,7 +172,7 @@ def binToOct(value):
         # Fill up those blocks without 3 digits with 0's
         current_block = i.rjust(3, '0')
 
-        # Search the Octal number to all blocks of 3 digits
+        # Search the Octal number to all blocks
         oct_num += oct_table[current_block]
 
         verbose += '{0}\t{1}\t{2}\n'.format(current_block, oct_table[current_block], oct_num)
@@ -181,7 +182,30 @@ def binToOct(value):
     return oct_num, verbose
 
 def binToHex(value):
-    pass
+    hex_num = '0x'
+    bin_split = []
+    verbose = fg.li_yellow + ' -' + fg.li_green + ' Binary to Hexadecimal verbose:\n' + fg.rs + 'Binary\tHexadecimal\tinterim result\n'
+
+    hex_table = {'0000': '0', '0001': '1', '0010': '2', '0011': '3', '0100': '4', '0101': '5', '0110': '6', '0111': '7', '1000': '8', '1001': '9', '1010': 'A', '1011': 'B', '1100': 'C', '1101': 'D', '1110': 'E', '1111': 'F'}
+
+    # Split the binary number into blocks with 4 digits
+    value = value.strip('0')
+    while value != '':
+        bin_split.append(value[-4:])
+        value = value[:-4]
+
+    for i in reversed(bin_split):
+        # Fill up those blocks without 4 digits with 0's
+        current_block = i.rjust(4, '0')
+
+        # Search the Hex number to all blocks
+        hex_num += hex_table[current_block]
+
+        verbose += '{0}\t{1}\t\t{2}\n'.format(current_block, hex_table[current_block], hex_num)
+
+    verbose += '\n' + ' ' * 3 + fg.li_cyan + '-' * 35 + fg.rs + '\n'
+
+    return hex_num, verbose
 
 
 """The main menu of the app
@@ -221,8 +245,8 @@ def menu():
         # Decimal into Hexadecimal
         decToHex_result = decToHex(value)
         hex_num = decToHex_result[0]
-        hex_vervose = decToHex_result[1]
-        print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_vervose))
+        hex_verbose = decToHex_result[1]
+        print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
 
         finish()
     elif answer.lower() == 'binary' or answer.lower() == 'b':
@@ -238,6 +262,11 @@ def menu():
         oct_num = binToOct_result[0]
         oct_verbose = binToOct_result[1]
         print('%s - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
+
+        binToHex_result = binToHex(value)
+        hex_num = binToHex_result[0]
+        hex_verbose = binToHex_result[1]
+        print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
 
         finish()
     elif answer.lower() == 'quit' or answer.lower() == 'q':
