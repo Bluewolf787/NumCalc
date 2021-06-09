@@ -1,4 +1,3 @@
-# NumCalc
 
 ![logo](readme-assets/numcalc.png)
 
