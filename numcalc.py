@@ -3,6 +3,8 @@ from pyfiglet import Figlet
 from sty import fg, bg, ef, rs
 
 
+### DECIMAL
+
 """Convert a decimal number into a binary number
 """
 def decToBin(value):
@@ -127,6 +129,9 @@ def decToOct(value):
 
     return oct_num, verbose
 
+
+### BINARY
+
 """Convert binary numbers into decimal numbers
 """
 def binToDec(value):
@@ -181,6 +186,8 @@ def binToOct(value):
 
     return oct_num, verbose
 
+"""Convert binary numbers into hexadecimal numbers
+"""
 def binToHex(value):
     hex_num = '0x'
     bin_split = []
@@ -208,6 +215,8 @@ def binToHex(value):
     return hex_num, verbose
 
 
+### Menus
+
 """The main menu of the app
 """
 def menu():
@@ -227,7 +236,13 @@ def menu():
 
     if answer.lower() == 'decimal' or answer.lower() == 'd':
         print('\nEnter a decimal number')
-        value = int(get_input())
+        value = 0
+        while True:
+            try:
+                value = int(get_input())
+                break
+            except ValueError:
+                print(bg.red + 'Invalid decimal number' + bg.rs)
 
         # Decimal into Binary
         decToBin_result = decToBin(value)
@@ -251,7 +266,17 @@ def menu():
         finish()
     elif answer.lower() == 'binary' or answer.lower() == 'b':
         print('\nEnter a binary number')
-        value = str(get_input())
+        value = ''
+        while True:
+            is_invalid = False
+            value = str(get_input())
+            for i in value:
+                if i != '0' and i != '1':
+                    print(bg.red + 'Invalid binary number' + bg.rs)
+                    is_invalid = True
+                    break
+            if not is_invalid:
+                break
 
         binToDec_result = binToDec(value)
         dec_num = binToDec_result[0]
@@ -288,6 +313,9 @@ def finish():
         menu()
     elif answer.lower() == 'q':
         exit_numcalc()
+
+
+### Utilites
 
 """Get input from the user
 """
