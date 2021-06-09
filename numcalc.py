@@ -215,6 +215,30 @@ def binToHex(value):
     return hex_num, verbose
 
 
+### OCTAL
+
+"""Convert octal numbers into decimal numbers
+"""
+def octToDec(value):
+    dec_num = 0
+    verbose = fg.li_yellow + ' -' + fg.li_green + ' Octal to Decimal verbose:\n' + fg.rs
+
+    position = 0
+    for digit in reversed(str(value)):
+        dec_num += (8 ** position) * int(digit)
+
+        if position + 1  == len(str(value)):
+            verbose += '8^%d * %s = %d\n' % (position, digit, dec_num)
+        else:
+            verbose += '8^%d * %s + ' % (position, digit)
+
+        position += 1
+
+    verbose += '\n' + ' ' * 3 + fg.li_cyan + '-' * 35 + fg.rs + '\n'
+
+    return dec_num, verbose
+
+
 ### Menus
 
 """The main menu of the app
@@ -230,11 +254,11 @@ def menu():
     print('Which number type you want enter?\n' + fg.li_yellow + '\t1.' + fg.rs + ' Decimal (d)\n' + fg.li_yellow + '\t2.' + fg.rs + ' Binary (b)\n' + fg.li_yellow + '\t3.' + fg.rs + ' Octal (o)\n' + fg.li_yellow + '\t4.' + fg.rs + ' Hexadecimal (h)\n' + fg.li_yellow + '\t5.' + fg.rs + ' quit (q)')
 
     # Get user input
-    answer = str(get_input())
+    answer = str(get_input()).lower()
 
     print(fg.da_cyan + '=' * 33 + fg.rs)
 
-    if answer.lower() == 'decimal' or answer.lower() == 'd':
+    if answer == 'decimal' or answer == 'd':
         print('\nEnter a decimal number')
         value = 0
         while True:
@@ -264,18 +288,17 @@ def menu():
         print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
 
         finish()
-    elif answer.lower() == 'binary' or answer.lower() == 'b':
+    elif answer == 'binary' or answer == 'b':
         print('\nEnter a binary number')
         value = ''
         while True:
-            is_invalid = False
+            is_valid = True
             value = str(get_input())
             for i in value:
                 if i != '0' and i != '1':
                     print(bg.red + 'Invalid binary number' + bg.rs)
-                    is_invalid = True
-                    break
-            if not is_invalid:
+                    is_valid = False
+            if is_valid:
                 break
 
         binToDec_result = binToDec(value)
@@ -294,7 +317,34 @@ def menu():
         print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
 
         finish()
-    elif answer.lower() == 'quit' or answer.lower() == 'q':
+    elif answer == 'octal' or answer == 'o':
+        print('\nEnter a octal number')
+        value = 0
+        while True:
+            is_valid = True
+            try:
+                value = int(get_input())
+                for d in str(value):
+                    if int(d) >= 0 and int(d) <= 7:
+                        break
+                    else:
+                        is_valid = False
+                        print(bg.red + 'Invalid octal number' + bg.rs)
+                        break
+            except ValueError:
+                print(bg.red + 'Invalid octal number' + bg.rs)
+                is_valid = False
+
+            if is_valid:
+                break
+
+        octToDec_result = octToDec(value)
+        dec_num = octToDec_result[0]
+        dec_verbose = octToDec_result[1]
+        print('%s\n - %sDecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, dec_num, fg.rs, dec_verbose))
+            
+        finish()
+    elif answer == 'quit' or answer == 'q':
         exit_numcalc()
     else:
         finish()
@@ -303,15 +353,15 @@ def menu():
 """
 def finish():
     print(fg.da_cyan + '=' * 41 + fg.rs + '\nType in c to go back to menu or q to quit')
-    answer = str(get_input())
+    answer = str(get_input()).lower()
 
-    while answer.lower() != 'c' and answer.lower() != 'q':
+    while answer != 'c' and answer != 'q':
         answer = str(get_input())
 
-    if answer.lower() == 'c':
+    if answer == 'c':
         clear_cli()
         menu()
-    elif answer.lower() == 'q':
+    elif answer == 'q':
         exit_numcalc()
 
 
