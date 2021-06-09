@@ -139,7 +139,7 @@ def binToDec(value):
     verbose = fg.li_yellow + ' -' + fg.li_green + ' Binary to Decimal verbose:\n' + fg.rs
 
     # Find all 1's and there position and add those like 2⁰ + 2¹ + 2² + 2³ + ...
-    value = value.strip('0')
+    value = value.lstrip('0')
     i = 0
     for c in reversed(value):
         if c == '1':
@@ -168,7 +168,7 @@ def binToOct(value):
     oct_table = {'000': '0', '001': '1', '010': '2', '011': '3', '100': '4', '101': '5', '110': '6', '111': '7'}
 
     # Split the binary number into blocks with 3 digits
-    value = value.strip('0')
+    value = value.lstrip('0')
     while value != '':
         bin_split.append(value[-3:])
         value = value[:-3]
@@ -196,7 +196,7 @@ def binToHex(value):
     hex_table = {'0000': '0', '0001': '1', '0010': '2', '0011': '3', '0100': '4', '0101': '5', '0110': '6', '0111': '7', '1000': '8', '1001': '9', '1010': 'A', '1011': 'B', '1100': 'C', '1101': 'D', '1110': 'E', '1111': 'F'}
 
     # Split the binary number into blocks with 4 digits
-    value = value.strip('0')
+    value = value.lstrip('0')
     while value != '':
         bin_split.append(value[-4:])
         value = value[:-4]
