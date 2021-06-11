@@ -238,6 +238,26 @@ def octToDec(value):
 
     return dec_num, verbose
 
+"""Convert octal numbers into binary numbers
+"""
+def octToBin(value):
+    bin_num = ''
+    verbose = fg.li_yellow + ' -' + fg.li_green + ' Octal ti Binary verbose:\n' + fg.rs + 'Octal\tBinary\tinterim result\n'
+
+    bin_table = {0: '000', 1: '001', 2: '010', 3: '011', 4: '100', 5: '101', 6: '110', 7: '111'}
+    oct_split = []
+    for digit in str(value):
+        oct_split.append(int(digit))
+
+    for i in oct_split:
+        bin_num += bin_table[i]
+
+        verbose += '{0}\t{1}\t{2}\n'.format(i, bin_table[i], bin_num.lstrip('0'))
+
+    verbose += '\n' + ' ' * 3 + fg.li_cyan + '-' * 35 + fg.rs + '\n'
+
+    return bin_num.lstrip('0'), verbose
+
 
 ### Menus
 
@@ -342,7 +362,13 @@ def menu():
         dec_num = octToDec_result[0]
         dec_verbose = octToDec_result[1]
         print('%s\n - %sDecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, dec_num, fg.rs, dec_verbose))
-            
+        
+        octToBin_result = octToBin(value)
+        bin_num = octToBin_result[0]
+        bin_verbose = octToBin_result[1]
+        print('%s - %sBinary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, bin_num, fg.rs, bin_verbose))
+
+
         finish()
     elif answer == 'quit' or answer == 'q':
         exit_numcalc()
