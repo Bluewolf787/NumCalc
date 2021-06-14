@@ -242,7 +242,7 @@ def octToDec(value):
 """
 def octToBin(value):
     bin_num = ''
-    verbose = fg.li_yellow + ' -' + fg.li_green + ' Octal ti Binary verbose:\n' + fg.rs + 'Octal\tBinary\tinterim result\n'
+    verbose = fg.li_yellow + ' -' + fg.li_green + ' Octal to Binary verbose:\n' + fg.rs + 'Octal\tBinary\tinterim result\n'
 
     bin_table = {0: '000', 1: '001', 2: '010', 3: '011', 4: '100', 5: '101', 6: '110', 7: '111'}
     oct_split = []
@@ -258,6 +258,15 @@ def octToBin(value):
 
     return bin_num.lstrip('0'), verbose
 
+"""Convert octal numbers into hexadecimal numbers
+"""
+def octToHex(value):
+    hex_num = ''
+    verbose = fg.li_yellow + ' -' + fg.li_green + ' Octal to Hexadecimal verbose:\n' + fg.rs + 'Octal -> Decimal -> Hexadecimal'
+
+    hex_num = decToHex(octToDec(value)[0])[0]
+
+    return hex_num, verbose
 
 ### Menus
 
@@ -368,6 +377,10 @@ def menu():
         bin_verbose = octToBin_result[1]
         print('%s - %sBinary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, bin_num, fg.rs, bin_verbose))
 
+        octToHex_result = octToHex(value)
+        hex_num = octToHex_result[0]
+        hex_verbose = octToHex_result[1]
+        print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
 
         finish()
     elif answer == 'quit' or answer == 'q':
