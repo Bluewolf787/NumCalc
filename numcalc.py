@@ -1,4 +1,4 @@
-import os
+import os, getopt, sys
 from pyfiglet import Figlet
 from sty import fg, bg, ef, rs
 
@@ -241,7 +241,7 @@ def octToDec(value):
 """Convert octal numbers into binary numbers
 """
 def octToBin(value):
-    bin_num = ''
+    bin_num = '0b'
     verbose = fg.li_yellow + ' -' + fg.li_green + ' Octal to Binary verbose:\n' + fg.rs + 'Octal\tBinary\tinterim result\n'
 
     bin_table = {0: '000', 1: '001', 2: '010', 3: '011', 4: '100', 5: '101', 6: '110', 7: '111'}
@@ -261,132 +261,402 @@ def octToBin(value):
 """Convert octal numbers into hexadecimal numbers
 """
 def octToHex(value):
-    hex_num = ''
-    verbose = fg.li_yellow + ' -' + fg.li_green + ' Octal to Hexadecimal verbose:\n' + fg.rs + 'Octal -> Decimal -> Hexadecimal'
+    hex_num = '0x'
+    verbose = fg.li_yellow + ' -' + fg.li_green + ' Octal to Hexadecimal verbose: ' + fg.rs + 'Octal -> Decimal -> Hexadecimal\n'
 
-    hex_num = decToHex(octToDec(value)[0])[0]
+    octToDec_result = octToDec(value)
+    decToHex_result = decToHex(octToDec_result[0])
+
+    hex_num = decToHex_result[0]
+
+    verbose += octToDec_result[1][:-51] + '\n' + decToHex_result[1]
 
     return hex_num, verbose
+
+
+### HEXADECIMAL
+
+"""Convert hexadecimal numbers into decimal numbers
+"""
+def hexToDec(value):
+    dec_num = 0
+    verbose = fg.li_yellow + ' -' + fg.li_green + ' Hexadecimal to Decimal verbose:\n' + fg.rs
+
+    digits = []
+    for digit in reversed(value):
+        if digit == 'A':
+            digits.append(10)
+        elif digit == 'B':
+            digits.append(11)
+        elif digit == 'C':
+            digits.append(12)
+        elif digit == 'D':
+            digits.append(13)
+        elif digit == 'E':
+            digits.append(14)
+        elif digit == 'F':
+            digits.append(15)
+        else:
+            digits.append(int(digit))
+
+    interim_results = []
+
+    power = 0
+    for digit in digits:
+        interim_result = digit * (16 ** power)
+        dec_num += interim_result
+        interim_results.append(interim_result)
+
+        verbose += '%s * 16^%s = %s\n' % (digit, power, interim_result)
+        power += 1
+
+    verbose += '\n'
+
+    i = 1
+    for result in interim_results:
+        if i == len(interim_results):
+            verbose += '%s = ' % result
+        else:
+            verbose += '%s + ' % result
+        i += 1
+
+    verbose += f'{str(dec_num)}\n'
+
+    verbose += '\n' + ' ' * 3 + fg.li_cyan + '-' * 35 + fg.rs + '\n'
+
+    return dec_num, verbose
+    
+
+"""Convert hexadecimal numbers into binary numbers
+"""
+def hexToBin(value):
+    bin_num = '0b'
+    verbose = '%s -%s Hexadecimal to Binary verbose:%s\nHexadecimal\tBinary\tinterim result\n' % (fg.li_yellow, fg.li_green, fg.rs)
+
+    bin_table = {'0': '0000', '1': '0001', '2': '0010', '3': '0011', '4': '0100', '5': '0101', '6': '0110', '7': '0111', '8': '1000', '9': '1001', 'A': '1010', 'B': '1011', 'C': '1100', 'D': '1101', 'E': '1110', 'F': '1111'}
+
+    for digit in value:
+        bin_num += bin_table[digit]
+        verbose += '%s\t\t%s\t%s\n' % (digit, bin_table[digit], bin_num)
+
+    verbose += '\n' + ' ' * 3 + fg.li_cyan + '-' * 35 + fg.rs + '\n'
+
+    return bin_num, verbose
+
+"""Convert hexadecimal numbers into octal numbers
+"""
+def hexToOct(value):
+    oct_num = '0o'
+    verbose = '%s -%s Hexadecimal to Octal verbose:%s Hexadecimal -> Binary -> Octal\n' % (fg.li_yellow, fg.li_green, fg.rs)
+
+    hexToBin_result = hexToBin(value)
+    binToOct_result = binToOct(hexToBin_result[0][2:])
+
+    oct_num = binToOct_result[0]
+
+    verbose += f'{hexToBin_result[1][:-51]}\n{binToOct_result[1]}'
+
+    return oct_num, verbose 
+
 
 ### Menus
 
 """The main menu of the app
 """
-def menu():
-    # Print the header
-    figlet = Figlet(font='slant')
-    print(fg.yellow + figlet.renderText('NumCalc') + fg.rs)
-    print(bg.blue + 'By Bluewolf787 v.BETA-1.0.0' + bg.rs)
+def menu(argv):
+    
+    try:
+        opts, args = getopt.getopt(argv, 'd:b:o:h:', ['help', 'decimal=', 'binary=', 'octal=', 'hexadecimal='])
+    except getopt.GetoptError:
+        print('numcalc --help')
+        sys.exit(2)
 
-    # Print the options
-    print(fg.da_cyan + '=' * 33 + fg.rs)
-    print('Which number type you want enter?\n' + fg.li_yellow + '\t1.' + fg.rs + ' Decimal (d)\n' + fg.li_yellow + '\t2.' + fg.rs + ' Binary (b)\n' + fg.li_yellow + '\t3.' + fg.rs + ' Octal (o)\n' + fg.li_yellow + '\t4.' + fg.rs + ' Hexadecimal (h)\n' + fg.li_yellow + '\t5.' + fg.rs + ' quit (q)')
+    value = ''
+    if not len(opts) == 0:
+        for opt, arg in opts:
+            if opt in ('', '--help'):
+                print('''
+NumCalc v. 1.0.0-beta - by Bluewolf787 (https://github.com/bluewolf787/numcalc
 
-    # Get user input
-    answer = str(get_input()).lower()
+Usage: numcalc [Option]
 
-    print(fg.da_cyan + '=' * 33 + fg.rs)
+Options:
+    -d=NUMBER,  --decimal=NUMBER     Converts from a decimal number
+    -b=NUMBER,  --binary=NUMBER      Converts from a binary number
+    -o=NUMBER,  --octal=NUMBER       Converts from a octal number
+    -h=NUMBER, --hexadecimal=NUMBER  Converts froma hexadecimal number       
+''')
+            elif opt in ('-d', '--decimal'):
+                try:
+                    value = int(arg)
+                except ValueError:
+                    print(bg.red + 'Invalid decimal number' + bg.rs)
+                    break
 
-    if answer == 'decimal' or answer == 'd':
-        print('\nEnter a decimal number')
-        value = 0
-        while True:
-            try:
-                value = int(get_input())
-                break
-            except ValueError:
-                print(bg.red + 'Invalid decimal number' + bg.rs)
+                print('%s%sConvert decimal number:%s %s%s%s%s' % (fg.black, bg.green, bg.rs, bg.red, value, bg.rs, fg.rs))
 
-        # Decimal into Binary
-        decToBin_result = decToBin(value)
-        bin_num = decToBin_result[0]
-        bin_verbose = decToBin_result[1]
-        print('%s\n - %sBinary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, bin_num, fg.rs, bin_verbose))
+                # Decimal into Binary
+                decToBin_result = decToBin(value)
+                bin_num = decToBin_result[0]
+                bin_verbose = decToBin_result[1]
+                print('%s\n - %sBinary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, bin_num, fg.rs, bin_verbose))
 
-        # Decimal into Octal
-        decToOct_result = decToOct(value)
-        oct_num = decToOct_result[0]
-        oct_verbose = decToOct_result[1]
-        print('%s - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
+                # Decimal into Octal
+                decToOct_result = decToOct(value)
+                oct_num = decToOct_result[0]
+                oct_verbose = decToOct_result[1]
+                print('%s - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
 
+                # Decimal into Hexadecimal
+                decToHex_result = decToHex(value)
+                hex_num = decToHex_result[0]
+                hex_verbose = decToHex_result[1]
+                print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
 
-        # Decimal into Hexadecimal
-        decToHex_result = decToHex(value)
-        hex_num = decToHex_result[0]
-        hex_verbose = decToHex_result[1]
-        print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
-
-        finish()
-    elif answer == 'binary' or answer == 'b':
-        print('\nEnter a binary number')
-        value = ''
-        while True:
-            is_valid = True
-            value = str(get_input())
-            for i in value:
-                if i != '0' and i != '1':
-                    print(bg.red + 'Invalid binary number' + bg.rs)
-                    is_valid = False
-            if is_valid:
-                break
-
-        binToDec_result = binToDec(value)
-        dec_num = binToDec_result[0]
-        dec_verbose = binToDec_result[1]
-        print('%s\n - %sDecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, dec_num, fg.rs, dec_verbose))
-
-        binToOct_result = binToOct(value)
-        oct_num = binToOct_result[0]
-        oct_verbose = binToOct_result[1]
-        print('%s - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
-
-        binToHex_result = binToHex(value)
-        hex_num = binToHex_result[0]
-        hex_verbose = binToHex_result[1]
-        print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
-
-        finish()
-    elif answer == 'octal' or answer == 'o':
-        print('\nEnter a octal number')
-        value = 0
-        while True:
-            is_valid = True
-            try:
-                value = int(get_input())
-                for d in str(value):
-                    if int(d) >= 0 and int(d) <= 7:
-                        break
-                    else:
+            elif opt in ('-b', '--binary'):
+                is_valid = True
+                value = str(arg)
+                for i in value:
+                    if i != '0' and i != '1':
+                        print(bg.red + 'Invalid binary number' + bg.rs)
                         is_valid = False
-                        print(bg.red + 'Invalid octal number' + bg.rs)
+
+                if not is_valid:
+                    break
+
+                print('%s%sConvert binary number:%s %s0b%s%s%s' % (fg.black, bg.green, bg.rs, bg.red, value, bg.rs, fg.rs))
+
+                binToDec_result = binToDec(value)
+                dec_num = binToDec_result[0]
+                dec_verbose = binToDec_result[1]
+                print('%s\n - %sDecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, dec_num, fg.rs, dec_verbose))
+
+                binToOct_result = binToOct(value)
+                oct_num = binToOct_result[0]
+                oct_verbose = binToOct_result[1]
+                print('%s - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
+
+                binToHex_result = binToHex(value)
+                hex_num = binToHex_result[0]
+                hex_verbose = binToHex_result[1]
+                print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
+
+            elif opt in ('-o', '--octal'):
+                is_valid = True
+                try:
+                    value = int(arg)
+                    for d in str(value):
+                        if int(d) >= 0 and int(d) <= 7:
+                            break
+                        else:
+                            is_valid = False
+                            print(bg.red + 'Invalid octal number' + bg.rs)
+                            break
+                except ValueError:
+                    print(bg.red + 'Invalid octal number' + bg.rs)
+                    is_valid = False
+
+                if not is_valid:
+                    break
+            
+                print('%s%sConvert octal number:%s %s0o%s%s%s' % (fg.black, bg.green, bg.rs, bg.red, value, bg.rs, fg.rs))
+
+                octToDec_result = octToDec(value)
+                dec_num = octToDec_result[0]
+                dec_verbose = octToDec_result[1]
+                print('%s\n - %sDecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, dec_num, fg.rs, dec_verbose))
+                
+                octToBin_result = octToBin(value)
+                bin_num = octToBin_result[0]
+                bin_verbose = octToBin_result[1]
+                print('%s - %sBinary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, bin_num, fg.rs, bin_verbose))
+
+                octToHex_result = octToHex(value)
+                hex_num = octToHex_result[0]
+                hex_verbose = octToHex_result[1]
+                print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
+            
+            elif opt in ('-h', '--hexadecimal'):
+                is_valid = True
+                nums = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+
+                value = str(arg)
+                for digit in value:
+                    if not nums.__contains__(digit.upper()):
+                        is_valid = False
+                        print(bg.red + 'Invalid hexadecimal number' + bg.rs)
                         break
-            except ValueError:
-                print(bg.red + 'Invalid octal number' + bg.rs)
-                is_valid = False
 
-            if is_valid:
-                break
+                if not is_valid:
+                    break
 
-        octToDec_result = octToDec(value)
-        dec_num = octToDec_result[0]
-        dec_verbose = octToDec_result[1]
-        print('%s\n - %sDecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, dec_num, fg.rs, dec_verbose))
-        
-        octToBin_result = octToBin(value)
-        bin_num = octToBin_result[0]
-        bin_verbose = octToBin_result[1]
-        print('%s - %sBinary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, bin_num, fg.rs, bin_verbose))
+                print('%s%sConvert hexadecimal number:%s %s0x%s%s%s' % (fg.black, bg.green, bg.rs, bg.red, value, bg.rs, fg.rs))
 
-        octToHex_result = octToHex(value)
-        hex_num = octToHex_result[0]
-        hex_verbose = octToHex_result[1]
-        print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
+                hexToDec_result = hexToDec(value)
+                dec_num = hexToDec_result[0]
+                dec_verbose = hexToDec_result[1]
+                print('%s\n - %shexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, dec_num, fg.rs, dec_verbose))
 
-        finish()
-    elif answer == 'quit' or answer == 'q':
-        exit_numcalc()
+                hexToBin_result = hexToBin(value)
+                bin_num = hexToBin_result[0]
+                bin_verbose = hexToBin_result[1]
+                print('%s\n - %Binary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, bin_num, fg.rs, bin_verbose))
+
+                hexToOct_result = hexToOct(value)
+                oct_num = hexToOct_result[0]
+                oct_verbose = hexToOct_result[1]
+                print('%s - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
+
     else:
-        finish()
+        clear_cli()
+        # Print the header
+        figlet = Figlet(font='slant')
+        print(fg.yellow + figlet.renderText('NumCalc') + fg.rs)
+        print(bg.blue + 'By Bluewolf787 v.1.0.0-beta' + bg.rs)
+
+        # Print the options
+        print(fg.da_cyan + '=' * 33 + fg.rs)
+        print('Which number type you want enter?\n' + fg.li_yellow + '\t1.' + fg.rs + ' Decimal (d)\n' + fg.li_yellow + '\t2.' + fg.rs + ' Binary (b)\n' + fg.li_yellow + '\t3.' + fg.rs + ' Octal (o)\n' + fg.li_yellow + '\t4.' + fg.rs + ' Hexadecimal (h)\n' + fg.li_yellow + '\t5.' + fg.rs + ' quit (q)')
+
+        # Get user input
+        answer = str(get_input()).lower()
+
+        print(fg.da_cyan + '=' * 33 + fg.rs)
+
+        if answer == 'decimal' or answer == 'd':
+            print('\nEnter a decimal number')
+            value = 0
+            while True:
+                try:
+                    value = int(get_input())
+                    break
+                except ValueError:
+                    print(bg.red + 'Invalid decimal number' + bg.rs)
+
+            # Decimal into Binary
+            decToBin_result = decToBin(value)
+            bin_num = decToBin_result[0]
+            bin_verbose = decToBin_result[1]
+            print('%s\n - %sBinary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, bin_num, fg.rs, bin_verbose))
+
+            # Decimal into Octal
+            decToOct_result = decToOct(value)
+            oct_num = decToOct_result[0]
+            oct_verbose = decToOct_result[1]
+            print('%s - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
+
+
+            # Decimal into Hexadecimal
+            decToHex_result = decToHex(value)
+            hex_num = decToHex_result[0]
+            hex_verbose = decToHex_result[1]
+            print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
+
+            finish()
+        elif answer == 'binary' or answer == 'b':
+            print('\nEnter a binary number')
+            value = ''
+            while True:
+                is_valid = True
+                value = str(get_input())
+                for i in value:
+                    if i != '0' and i != '1':
+                        print(bg.red + 'Invalid binary number' + bg.rs)
+                        is_valid = False
+                if is_valid:
+                    break
+
+            binToDec_result = binToDec(value)
+            dec_num = binToDec_result[0]
+            dec_verbose = binToDec_result[1]
+            print('%s\n - %sDecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, dec_num, fg.rs, dec_verbose))
+
+            binToOct_result = binToOct(value)
+            oct_num = binToOct_result[0]
+            oct_verbose = binToOct_result[1]
+            print('%s - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
+
+            binToHex_result = binToHex(value)
+            hex_num = binToHex_result[0]
+            hex_verbose = binToHex_result[1]
+            print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
+
+            finish()
+        elif answer == 'octal' or answer == 'o':
+            print('\nEnter a octal number')
+            value = 0
+            while True:
+                is_valid = True
+                try:
+                    value = int(get_input())
+                    for d in str(value):
+                        if int(d) >= 0 and int(d) <= 7:
+                            break
+                        else:
+                            is_valid = False
+                            print(bg.red + 'Invalid octal number' + bg.rs)
+                            break
+                except ValueError:
+                    print(bg.red + 'Invalid octal number' + bg.rs)
+                    is_valid = False
+
+                if is_valid:
+                    break
+            
+            octToDec_result = octToDec(value)
+            dec_num = octToDec_result[0]
+            dec_verbose = octToDec_result[1]
+            print('%s\n - %sDecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, dec_num, fg.rs, dec_verbose))
+            
+            octToBin_result = octToBin(value)
+            bin_num = octToBin_result[0]
+            bin_verbose = octToBin_result[1]
+            print('%s - %sBinary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, bin_num, fg.rs, bin_verbose))
+
+            octToHex_result = octToHex(value)
+            hex_num = octToHex_result[0]
+            hex_verbose = octToHex_result[1]
+            print('%s - %sHexadecimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, hex_num, fg.rs, hex_verbose))
+
+            finish()
+
+        elif answer == 'hexadecimal' or answer == 'h':
+            print('\nEnter a hexadecimal number')
+            value = ''
+            nums = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+            while True:
+                is_valid = True
+
+                value = str(get_input())
+                
+                for digit in value:
+                    if not nums.__contains__(digit.upper()):
+                        is_valid = False
+                        print(bg.red + 'Invalid hexadecimal number' + bg.rs)
+                        break
+
+                if is_valid:
+                    break
+
+            hexToDec_result = hexToDec(value)
+            dec_num = hexToDec_result[0]
+            dec_verbose = hexToDec_result[1]
+            print('%s\n - %Decimal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, dec_num, fg.rs, dec_verbose))
+
+            hexToBin_result = hexToBin(value)
+            bin_num = hexToBin_result[0]
+            bin_verbose = hexToBin_result[1]
+            print('%s\n - %Binary result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, bin_num, fg.rs, bin_verbose))
+
+            hexToOct_result = hexToOct(value)
+            oct_num = hexToOct_result[0]
+            oct_verbose = hexToOct_result[1]
+            print('%s - %sOctal result: %s%s%s\n%s' % (fg.li_yellow, fg.li_green, fg.li_red, oct_num, fg.rs, oct_verbose))
+
+        elif answer == 'quit' or answer == 'q':
+            exit_numcalc()
+        else:
+            finish()
 
 """Shown when a operation is finished
 """
@@ -399,7 +669,7 @@ def finish():
 
     if answer == 'c':
         clear_cli()
-        menu()
+        menu(None)
     elif answer == 'q':
         exit_numcalc()
 
@@ -423,5 +693,18 @@ def exit_numcalc():
     exit()
 
 if __name__ == '__main__':
-    clear_cli()
-    menu()
+    menu(sys.argv[1:])
+
+"""
+                     .
+                    / V\
+                  / `  /
+                 <<   |
+                 /    |
+               /      |
+             /        |
+           /    \  \ /
+          (      ) | |
+  ________|   _/_  | |
+<__________\______)\__)
+"""
