@@ -13,7 +13,9 @@ def decToBin(value):
     verbose = fg.li_yellow + ' -' + fg.li_green + ' Decimal to Binary verbose:\n' + fg.rs
 
     if value == 0:
-        return '0', ''
+        return '0', '\n%s%s%s%s\n' % (' ' * 3, fg.li_cyan, '-' * 35, fg.rs)
+    elif value == 1:
+        return '1', '\n%s%s%s%s\n' % (' ' * 3, fg.li_cyan, '-' * 35, fg.rs)
 
     # 1. search the biggest exponent
     exponent = 0
